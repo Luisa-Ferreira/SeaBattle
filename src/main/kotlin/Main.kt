@@ -659,7 +659,6 @@ fun lerJogo(nomeFicheiro: String, tipoDeTabuleiro: Int): Array<Array<Char?>> {
     }
 }
 
-
 fun gravarJogo(
     nomeFicheiro: String,
     tabuleiroRealHumano: Array<Array<Char?>>,
