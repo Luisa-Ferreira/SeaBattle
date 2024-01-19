@@ -713,7 +713,6 @@ fun criaTabuleiroVazio(numLinhas: Int, numColunas: Int): Array<Array<Char?>> {
     return Array(numLinhas) { Array(numColunas) { null } }
 }
 
-
 fun main() {
 
 //    val nomeFicheiro = "jogo.txt"
