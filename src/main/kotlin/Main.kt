@@ -99,13 +99,13 @@ fun menuDefinirTabuleiro(): Int {
 
 fun criaLegendaHorizontal(numColunas: Int): String {
 
-    val letras = ('A' until ('A' + numColunas)).joinToString(" | ") { it.toString() }
+    val letras = ('A'..<('A' + numColunas)).joinToString(" | ") { it.toString() }
     return letras
 }
 
 fun criaTerreno(numLinhas: Int, numColunas: Int) {
     val legendaHorizontal = criaLegendaHorizontal(numColunas)
-    println("   $legendaHorizontal")
+    println(" | $legendaHorizontal |")
 
     var linha = 1
     while (linha <= numLinhas) {
@@ -742,7 +742,6 @@ fun criaTabuleiroVazio(numLinhas: Int, numColunas: Int): Array<Array<Char?>> {
     //cria o tabuleiro com todas as posicoes vazias (null) do nosso tabuleiro
     return Array(numLinhas) { Array(numColunas) { null } }
 }
-
 
 fun main() {
 
