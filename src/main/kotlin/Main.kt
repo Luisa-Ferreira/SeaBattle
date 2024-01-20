@@ -100,9 +100,7 @@ fun menuDefinirTabuleiro(): Int {
 }
 
 fun criaLegendaHorizontal(numColunas: Int): String {
-
-    val letras = ('A'..<('A' + numColunas)).joinToString(" | ") { it.toString() }
-    return letras
+    return ('A' until ('A' + numColunas)).joinToString(" | ") { it.toString() }
 }
 
 fun criaTerreno(numLinhas: Int, numColunas: Int) {
