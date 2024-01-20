@@ -23,7 +23,8 @@ fun menuPrincipal(): Int {
 2 - Jogar
 3 - Gravar
 4 - Ler
-0 - Sair"""
+0 - Sair
+"""
         )
 
         opcao = readlnOrNull()?.toIntOrNull() ?: -1
@@ -47,6 +48,7 @@ fun menuPrincipal(): Int {
             }
 
             3 -> {
+                println("Introduza o nome do fichiro(ex: jogo.txt)")
                 nomeFicheiro = readlnOrNull() ?: "jogo.txt"
                 gravarJogo(
                     nomeFicheiro, tabuleiroHumano, tabuleiroPalpitesDoHumano,
@@ -118,6 +120,7 @@ fun criaTerreno(numLinhas: Int, numColunas: Int) {
         println("$linha")
         linha++
     }
+
     if(menuDefinirNavios()==-1){
         menuPrincipal()
     }
@@ -735,7 +738,8 @@ fun gravarJogo(
 
     // Gravar o conteúdo no arquivo
     File(nomeFicheiro).writeText(conteudo.toString())
-    println("Tabuleiro gravado com sucesso.")
+    val tamanho = tabuleiroPalpitesComputador.size
+    println("Tabuleiro ${tamanho}x${tamanho} gravado com sucesso.")
 }
 
 fun criaTabuleiroVazio(numLinhas: Int, numColunas: Int): Array<Array<Char?>> {
@@ -744,6 +748,16 @@ fun criaTabuleiroVazio(numLinhas: Int, numColunas: Int): Array<Array<Char?>> {
 }
 
 fun main() {
+
+//    navioCompleto()
+//
+//    lancarTiro()
+//
+//    contarNaviosDeDimensao()
+//calculaNaviosFaltaAfundar()
+// calculaEstatisticas()
+//    val naviosTipo= arrayOf(1,2,3,4)
+//    preencheTabuleiroComputador(tabuleiroComputador,naviosTipo)
 
     menuPrincipal();
 
