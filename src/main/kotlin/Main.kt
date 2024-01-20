@@ -1,14 +1,5 @@
 import java.io.File
 
-// Constantes Menu Principal
-const val MENU_PRINCIPAL = 100
-const val MENU_DEFINIR_TABULEIRO = 101
-const val MENU_DEFINIR_NAVIOS = 102
-const val MENU_JOGAR = 103
-const val MENU_LER_FICHEIRO = 104
-const val MENU_GRAVAR_FICHEIRO = 105
-const val SAIR = 106
-
 // variaveis globais -> visiveis em todas as funções
 var numLinhas = -1
 var numColunas = -1
@@ -21,34 +12,63 @@ var tabuleiroPalpitesDoComputador: Array<Array<Char?>> = emptyArray()
 
 fun menuPrincipal(): Int {
 
-    println("")
-    println("> > Batalha Naval < <")
-    println("")
-    println("1 - Definir Tabuleiro e Navios")
-    println("2 - Jogar")
-    println("3 - Gravar")
-    println("4 - Ler")
-    println("0 - Sair")
-    println("")
+    var opcao: Int
+    var jafoi = false
+    do {
+        println(
+            """
+> > Batalha Naval < <
+       
+1 - Definir Tabuleiro e Navios
+2 - Jogar
+3 - Gravar
+4 - Ler
+0 - Sair"""
+        )
 
-    val opcao = readlnOrNull()?.toIntOrNull() ?: -1
+        opcao = readlnOrNull()?.toIntOrNull() ?: -1
 
-    return when (opcao) {
+        var nomeFicheiro = "jogo.txt"
 
-        1 -> MENU_DEFINIR_TABULEIRO
-        2 -> MENU_JOGAR
-        3 -> MENU_GRAVAR_FICHEIRO
-        4 -> MENU_LER_FICHEIRO
-        0 -> SAIR
+        when (opcao) {
 
-        else -> {
+            1 -> {
+                opcao = menuDefinirTabuleiro()
+                jafoi = true
+            }
 
-            println("!!! Opcao invalida, tente novamente")
+            2 -> {
+                if (jafoi) {
+                    obtemMapa(tabuleiroPalpitesDoHumano, false)
 
-            MENU_PRINCIPAL
+                } else {
+                    opcao = -1
+                }
+            }
 
+            3 -> {
+                nomeFicheiro = readlnOrNull() ?: "jogo.txt"
+                gravarJogo(
+                    nomeFicheiro, tabuleiroHumano, tabuleiroPalpitesDoHumano,
+                    tabuleiroComputador, tabuleiroPalpitesDoComputador
+                )
+            }
+
+            4 -> {
+                lerJogo(nomeFicheiro, 4)
+            }
+
+            0 -> return 0
+
+            else -> {
+                println("!!! Opcao invalida, tente novamente")
+                opcao = -1
+            }
         }
-    }
+
+    } while (opcao > 1 || opcao < 0)
+
+    return 1
 }
 
 fun menuDefinirTabuleiro(): Int {
@@ -59,44 +79,47 @@ fun menuDefinirTabuleiro(): Int {
     numLinhas = readlnOrNull()?.toIntOrNull() ?: 0
 
     if (numLinhas <= 0) {
-        return MENU_PRINCIPAL
+        return -1
     }
 
     println("Quantas colunas?")
     numColunas = readlnOrNull()?.toIntOrNull() ?: 0
 
     if (numColunas <= 0) {
-        return MENU_DEFINIR_TABULEIRO
+        return -1
     }
 
-    if (tamanhoTabuleiroValido(numLinhas, numColunas)) {
+    return if (tamanhoTabuleiroValido(numLinhas, numColunas)) {
         criaTerreno(numLinhas, numColunas)
-        return MENU_DEFINIR_NAVIOS
+        0
     } else {
-        return MENU_DEFINIR_TABULEIRO
+        -1
     }
 }
 
 fun criaLegendaHorizontal(numColunas: Int): String {
-    println("")
+
     val letras = ('A' until ('A' + numColunas)).joinToString(" | ") { it.toString() }
     return letras
 }
 
 fun criaTerreno(numLinhas: Int, numColunas: Int) {
     val legendaHorizontal = criaLegendaHorizontal(numColunas)
-    println(legendaHorizontal)
+    println("   $legendaHorizontal")
 
     var linha = 1
     while (linha <= numLinhas) {
         print(" | ")
         var coluna = 1
         while (coluna <= numColunas) {
-            print(" ~ | ")
+            print("~ | ")
             coluna++
         }
-        println(" $linha")
+        println("$linha")
         linha++
+    }
+    if(menuDefinirNavios()==-1){
+        menuPrincipal()
     }
 }
 
@@ -110,9 +133,9 @@ fun menuDefinirNavios(): Int {
         coordenadas = readlnOrNull()
         if (coordenadas == null) {
             println("!!! Coordenadas invalidas, tente novamente")
-            return MENU_PRINCIPAL
+            return -1
         } else if (coordenadas.trim() == "-1") {
-            return MENU_PRINCIPAL
+            return -1
         } else if (processaCoordenadas(coordenadas, numLinhas, numColunas) == null) {
             println("!!! Coordenadas invalidas, tente novamente")
         }
@@ -124,14 +147,18 @@ fun menuDefinirNavios(): Int {
         orientacao = readlnOrNull()
         if (orientacao == null) {
             println("!!! Valor invalido, tente novamente")
-            return MENU_PRINCIPAL
+            return -1
         } else if (orientacao == "-1") {
-            return MENU_PRINCIPAL
+            return -1
         } else if (orientacao !in "NSEO") {
             println("!!! Orientacao invalida, tente novamente")
+        }else{
+
         }
+
     } while (orientacao == null || orientacao !in "NSEO" || orientacao == "-1")
-    return MENU_PRINCIPAL
+
+    return 0
 }
 
 
@@ -256,10 +283,12 @@ fun gerarCoordenadasNavio(
                 novaLinha = linha
                 novaColuna = coluna + i
             }
+
             "vertical" -> {
                 novaLinha = linha + i
                 novaColuna = coluna
             }
+
             else -> throw IllegalArgumentException("Orientação inválida: $orientacao")
         }
 
@@ -423,6 +452,7 @@ fun navioCompleto(tabuleiroPalpitesHumano: Array<Array<Char?>>, linha: Int, colu
                 linha + i < numRows && tabuleiroPalpitesHumano[linha + i][coluna] == 'C'
             }
         }
+
         else -> false  // Nenhum navio
     }
 }
@@ -716,24 +746,6 @@ fun criaTabuleiroVazio(numLinhas: Int, numColunas: Int): Array<Array<Char?>> {
 
 fun main() {
 
-//    val nomeFicheiro = "jogo.txt"
-//
-//    var menuActual = MENU_PRINCIPAL
-//
-//    while (true) {
-//
-//        menuActual = when (menuActual) {
-//
-//            MENU_PRINCIPAL -> menuPrincipal()
-//            MENU_DEFINIR_TABULEIRO -> menuDefinirTabuleiro()
-//            MENU_DEFINIR_NAVIOS -> menuDefinirNavios()
-//            //MENU_JOGAR -> jogar()
-//            //MENU_LER_FICHEIRO -> lerJogo("jogo.txt", 1)
-//            MENU_GRAVAR_FICHEIRO -> gravarJogo("jogo.txt", tabuleiroHumano, tabuleiroPalpitesDoHumano, tabuleiroComputador, tabuleiroPalpitesDoComputador)
-//            SAIR -> return
-//            else -> return
-//        }
-//
-//    }
+    menuPrincipal();
 
 }
