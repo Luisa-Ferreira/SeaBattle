@@ -481,7 +481,7 @@ fun obtemMapa(tabuleiro: Array<Array<Char?>>, isTabuleiroReal: Boolean): Array<S
     for (i in tabuleiro.indices) {
         // Adiciona o número da linha ao início de cada linha do mapa
         val linhaMapa = mutableListOf<String>()
-        linhaMapa.add("${i + 1} |")
+        linhaMapa.add("| ${i + 1}")
 
         for (j in tabuleiro[i].indices) {
             val valor = if (isTabuleiroReal) {
@@ -502,7 +502,7 @@ fun obtemMapa(tabuleiro: Array<Array<Char?>>, isTabuleiroReal: Boolean): Array<S
             }
 
             // Adiciona o valor ao mapa
-            linhaMapa.add(" $valor |")
+            linhaMapa.add("| $valor ")
         }
 
         // Adiciona a linha do mapa à lista do mapa
@@ -737,7 +737,7 @@ fun gravarJogo(
     // Gravar o conteúdo no arquivo
     File(nomeFicheiro).writeText(conteudo.toString())
     val tamanho = tabuleiroPalpitesComputador.size
-    println("Tabuleiro ${tamanho}x${tamanho} gravado com sucesso.")
+    println("Tabuleiro ${tamanho}x${tamanho} gravado com sucesso.\n")
 }
 
 fun criaTabuleiroVazio(numLinhas: Int, numColunas: Int): Array<Array<Char?>> {
@@ -757,6 +757,7 @@ fun main() {
 //    val naviosTipo= arrayOf(1,2,3,4)
 //    preencheTabuleiroComputador(tabuleiroComputador,naviosTipo)
 
-    menuPrincipal();
+  //  obtemMapa(tabuleiroHumano,true)
+   // menuPrincipal();
 
 }
