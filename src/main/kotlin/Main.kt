@@ -100,12 +100,13 @@ fun menuDefinirTabuleiro(): Int {
 }
 
 fun criaLegendaHorizontal(numColunas: Int): String {
-    return ('A' until ('A' + numColunas)).joinToString(" | ") { it.toString() }
+    val linhas = ('A' until ('A' + numColunas)).joinToString(" | ") { it.toString() }
+    return " | $linhas |"
 }
 
 fun criaTerreno(numLinhas: Int, numColunas: Int) {
     val legendaHorizontal = criaLegendaHorizontal(numColunas)
-    println(" | $legendaHorizontal |")
+    println(legendaHorizontal)
 
     var linha = 1
     while (linha <= numLinhas) {
