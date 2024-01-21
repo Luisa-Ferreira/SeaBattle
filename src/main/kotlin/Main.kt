@@ -100,13 +100,12 @@ fun menuDefinirTabuleiro(): Int {
 }
 
 fun criaLegendaHorizontal(numColunas: Int): String {
-    val linhas = ('A' until ('A' + numColunas)).joinToString(" | ") { it.toString() }
-    return "| $linhas |"
+    return ('A' until ('A' + numColunas)).joinToString(" | ") { it.toString() }
 }
 
 fun criaTerreno(numLinhas: Int, numColunas: Int) {
     val legendaHorizontal = criaLegendaHorizontal(numColunas)
-    println(legendaHorizontal)
+    println("| $legendaHorizontal |")
 
     var linha = 1
     while (linha <= numLinhas) {
@@ -477,7 +476,7 @@ fun obtemMapa(tabuleiro: Array<Array<Char?>>, isTabuleiroReal: Boolean): Array<S
     val mapa: MutableList<String> = mutableListOf()
 
     // Adiciona a legenda horizontal ao mapa
-    mapa.add(criaLegendaHorizontal(tabuleiro[0].size))
+    mapa.add("| ${criaLegendaHorizontal(tabuleiro[0].size)} |")
 
     for (i in tabuleiro.indices) {
         // Adiciona o número da linha ao início de cada linha do mapa
