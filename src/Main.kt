@@ -13,19 +13,15 @@ var tabuleiroPalpitesDoComputador: Array<Array<Char?>> = emptyArray()
 fun menuPrincipal(): Int {
 
     var opcao: Int
-    var jafoi = false
     do {
-        println(
-            """
-> > Batalha Naval < <
-       
-1 - Definir Tabuleiro e Navios
-2 - Jogar
-3 - Gravar
-4 - Ler
-0 - Sair
-"""
-        )
+
+        println("\n> > Batalha Naval < <\n")
+        println("1 - Definir Tabuleiro e Navios")
+        println("2 - Jogar")
+        println("3 - Gravar")
+        println("4 - Ler")
+        println("0 - Sair\n")
+
 
         opcao = readlnOrNull()?.toIntOrNull() ?: -1
 
@@ -35,16 +31,11 @@ fun menuPrincipal(): Int {
 
             1 -> {
                 opcao = menuDefinirTabuleiro()
-                jafoi = true
             }
 
             2 -> {
-                if (jafoi) {
-                    obtemMapa(tabuleiroPalpitesDoHumano, false)
 
-                } else {
-                    opcao = -1
-                }
+                obtemMapa(tabuleiroPalpitesDoHumano, false)
             }
 
             3 -> {
@@ -81,6 +72,7 @@ fun menuDefinirTabuleiro(): Int {
     numLinhas = readlnOrNull()?.toIntOrNull() ?: 0
 
     if (numLinhas <= 0) {
+        println("!!! Número de linhas invalidas, tente novamente");
         return -1
     }
 
@@ -88,6 +80,7 @@ fun menuDefinirTabuleiro(): Int {
     numColunas = readlnOrNull()?.toIntOrNull() ?: 0
 
     if (numColunas <= 0) {
+        println("!!! Número de colunas invalidas, tente novamente");
         return -1
     }
 
@@ -95,6 +88,7 @@ fun menuDefinirTabuleiro(): Int {
         criaTerreno(numLinhas, numColunas)
         0
     } else {
+        println("!!! Tamanho invalido, tente novamente");
         -1
     }
 }
@@ -103,61 +97,95 @@ fun criaLegendaHorizontal(numColunas: Int): String {
     return ('A' until ('A' + numColunas)).joinToString(" | ") { it.toString() }
 }
 
-fun criaTerreno(numLinhas: Int, numColunas: Int) {
-    val legendaHorizontal = criaLegendaHorizontal(numColunas)
-    println("| $legendaHorizontal |")
+fun criaTerreno(nLinhas: Int, nColunas: Int) {
+
+    val legendaHorizontal = criaLegendaHorizontal(nColunas)
+
+    var terrenoRealString = ""
+
+    terrenoRealString += "| $legendaHorizontal |\n"
 
     var linha = 1
-    while (linha <= numLinhas) {
-        print("| ")
+    while (linha <= nLinhas) {
+        terrenoRealString += "| "
         var coluna = 1
-        while (coluna <= numColunas) {
-            print("~ | ")
+        while (coluna <= nColunas) {
+            terrenoRealString += "~ | "
             coluna++
         }
-        println("$linha")
+        terrenoRealString += "$linha\n"
         linha++
     }
+    println(terrenoRealString)
 
-    if(menuDefinirNavios()==-1){
+
+    if (menuDefinirNavios() == -1) {
         menuPrincipal()
     }
 }
 
 fun menuDefinirNavios(): Int {
-    println("")
-    println("Insira as coordenadas do navio:")
-    var coordenadas: String?
-    var orientacao: String?
-    do {
-        println("Coordenadas? (ex: 6,G)")
-        coordenadas = readlnOrNull()
-        if (coordenadas == null) {
-            println("!!! Coordenadas invalidas, tente novamente")
-            return -1
-        } else if (coordenadas.trim() == "-1") {
-            return -1
-        } else if (processaCoordenadas(coordenadas, numLinhas, numColunas) == null) {
-            println("!!! Coordenadas invalidas, tente novamente")
-        }
-    } while (coordenadas == null || processaCoordenadas(coordenadas, numLinhas, numColunas) == null)
+    val barcos = calculaNumNavios(numLinhas, numColunas);
 
-    println("Insira a orientacao do navio:")
-    do {
-        println("Orientacao? (N, S, E, O)")
-        orientacao = readlnOrNull()
-        if (orientacao == null) {
-            println("!!! Valor invalido, tente novamente")
-            return -1
-        } else if (orientacao == "-1") {
-            return -1
-        } else if (orientacao !in "NSEO") {
-            println("!!! Orientacao invalida, tente novamente")
-        }else{
+    while (barcos[0] > 0 || barcos[1] > 0 || barcos[2] > 0 || barcos[3] > 0) {
 
+        if (barcos[0] > 0) {
+            println("Insira as coordenadas de um submarino:")
         }
 
-    } while (orientacao == null || orientacao !in "NSEO" || orientacao == "-1")
+        var coordenadas: String?
+        var orientacao: String?
+        do {
+            println("Coordenadas? (ex: 6,G)")
+            coordenadas = readlnOrNull()
+
+            if (coordenadas == null) {
+                println("!!! Coordenadas invalidas, tente novamente")
+                return -1
+            } else if (coordenadas.trim() == "-1") {
+                return -1
+            } else if (processaCoordenadas(coordenadas, numLinhas, numColunas) == null) {
+                println("!!! Coordenadas invalidas, tente novamente")
+            }
+        } while (coordenadas == null || processaCoordenadas(coordenadas, numLinhas, numColunas) == null)
+
+        if (barcos[0] == 0) {
+
+            if (barcos[1] > 0) {
+                println("Insira as coordenadas de um contra-torpedeiros:")
+                barcos[1]--
+            } else if (barcos[2] > 0) {
+                println("Insira as coordenadas de um navios-tanque:")
+                barcos[1]--
+            } else if (barcos[3] > 0) {
+                println("Insira as coordenadas de um porta-avioes:")
+                barcos[3]--
+            }
+
+            println("Insira a orientacao do navio:")
+            do {
+                if (tabuleiroHumano.size == 4) {
+                    return 0
+                }
+
+                println("Orientacao? (N, S, E, O)")
+                orientacao = readlnOrNull()
+
+                if (orientacao == null) {
+                    println("!!! Valor invalido, tente novamente")
+                    return -1
+                } else if (orientacao == "-1") {
+                    return -1
+                } else if (orientacao !in "NSEO") {
+                    println("!!! Orientacao invalida, tente novamente")
+                }
+                //mostrar o tabuleiro
+            } while (orientacao == null || orientacao !in "NSEO" || orientacao == "-1")
+        } else {
+            //mostrar o tabuleiro
+            barcos[0]--
+        }
+    }
 
     return 0
 }
@@ -272,20 +300,38 @@ fun gerarCoordenadasNavio(
     orientacao: String,
     dimensao: Int
 ): Array<Pair<Int, Int>> {
-    val coordenadasNavio = mutableListOf<Pair<Int, Int>>()
+
+    val coordenadasNavio: Array<Pair<Int, Int>> = arrayOf(Pair(linha, coluna))
+
+    if (dimensao == 1) {
+
+        return coordenadasNavio
+    }
 
     // Verifica a orientação do navio e gera as coordenadas correspondentes
     for (i in 0 until dimensao) {
+
         val novaLinha: Int
         val novaColuna: Int
 
         when (orientacao) {
-            "horizontal" -> {
+
+            "N" -> {
+                novaLinha = linha + i
+                novaColuna = coluna
+            }
+
+            "S" -> {
+                novaLinha = linha + i
+                novaColuna = coluna
+            }
+
+            "E" -> {
                 novaLinha = linha
                 novaColuna = coluna + i
             }
 
-            "vertical" -> {
+            "O" -> {
                 novaLinha = linha + i
                 novaColuna = coluna
             }
@@ -295,14 +341,14 @@ fun gerarCoordenadasNavio(
 
         // Verifica se as coordenadas geradas estão dentro do tabuleiro
         if (novaLinha in 0 until tabuleiro.size && novaColuna in 0 until tabuleiro[0].size) {
-            coordenadasNavio.add(Pair(novaLinha, novaColuna))
+
         } else {
             // Se sair do tabuleiro, retorna um array vazio
             return emptyArray()
         }
     }
 
-    return coordenadasNavio.toTypedArray()
+    return coordenadasNavio
 }
 
 fun gerarCoordenadasFronteira(
@@ -313,21 +359,35 @@ fun gerarCoordenadasFronteira(
     dimensao: Int
 ): Array<Pair<Int, Int>> {
 
-    val coordenadasNavio = gerarCoordenadasNavio(tabuleiro, linha, coluna, orientacao, dimensao)
-    val coordenadasFronteira = mutableListOf<Pair<Int, Int>>()
+    val coordNavio = gerarCoordenadasNavio(tabuleiro, linha, coluna, orientacao, dimensao)
 
-    for ((navioLinha, navioColuna) in coordenadasNavio) {
-        for (i in -1..1) {
-            val novaLinha = navioLinha + i * (if (orientacao == "N") -1 else if (orientacao == "S") 1 else 0)
-            for (j in -1..1) {
-                val novaColuna = navioColuna + j * (if (orientacao == "W") -1 else if (orientacao == "E") 1 else 0)
-                coordenadasFronteira.add(Pair(novaLinha, novaColuna))
-            }
+    val coordenadasAoRedor: Array<Pair<Int, Int>> = emptyArray()
+
+
+    var count = 0
+    for (coord in coordNavio) {
+        val (x, y) = coord
+
+        if (coordenadaContida(tabuleiro, x - 1, y)) {
+            coordenadasAoRedor[count]=Pair(x - 1, y)
+            count++
+        }
+        if (coordenadaContida(tabuleiro, x + 1, y)) {
+            coordenadasAoRedor[count]=Pair(x + 1, y)
+            count++
+        }
+        if (coordenadaContida(tabuleiro, x , y-1)) {
+            coordenadasAoRedor[count]=Pair(x + 1, y-1)
+            count++
+        }
+        if (coordenadaContida(tabuleiro, x, y+1)) {
+            coordenadasAoRedor[count]=Pair(x, y+1)
+            count++
         }
     }
 
-    // Remove coordenadas duplicadas e coordenadas fora dos limites do tabuleiro
-    return limparCoordenadasVazias(coordenadasFronteira.toTypedArray()).distinct().toTypedArray()
+// Remove coordenadas duplicadas e coordenadas fora dos limites do tabuleiro
+return limparCoordenadasVazias(coordenadasAoRedor).distinct().toTypedArray()
 }
 
 fun estaLivre(tabuleiro: Array<Array<Char?>>, coordenadas: Array<Pair<Int, Int>>): Boolean {
@@ -459,6 +519,7 @@ fun navioCompleto(tabuleiroPalpitesHumano: Array<Array<Char?>>, linha: Int, colu
 }
 
 fun obtemMapa(tabuleiro: Array<Array<Char?>>, isTabuleiroReal: Boolean): Array<String> {
+
     /*
         isTabuleiroReal é para ir true se o tabuleiro for o real e false se for o palpites
         pois se for real é para ser representado com ~ nas casas vazias e no de palpites
@@ -473,15 +534,11 @@ fun obtemMapa(tabuleiro: Array<Array<Char?>>, isTabuleiroReal: Boolean): Array<S
         deve de retornar um arrayString com o tabuleiro pedido. chamar as funçoes criaLegendaHorizontal e cria terreno para o real
      */
 
-    val mapa: MutableList<String> = mutableListOf()
+    var mapa = Array(numLinhas) { "" }
 
-    // Adiciona a legenda horizontal ao mapa
-    mapa.add("| ${criaLegendaHorizontal(tabuleiro[0].size)} |")
+    mapa[0] = "| ${criaLegendaHorizontal(numColunas)} |"
 
     for (i in tabuleiro.indices) {
-        // Adiciona o número da linha ao início de cada linha do mapa
-        val linhaMapa = mutableListOf<String>()
-        linhaMapa.add("| ${i + 1}")
 
         for (j in tabuleiro[i].indices) {
             val valor = if (isTabuleiroReal) {
@@ -500,16 +557,13 @@ fun obtemMapa(tabuleiro: Array<Array<Char?>>, isTabuleiroReal: Boolean): Array<S
                     else -> "?"
                 }
             }
-
-            // Adiciona o valor ao mapa
-            linhaMapa.add("| $valor ")
+            mapa += "| $valor "
         }
+        mapa += "| ${i + 1}"
 
-        // Adiciona a linha do mapa à lista do mapa
-        mapa.add(linhaMapa.joinToString(""))
     }
 
-    return mapa.toTypedArray()
+    return mapa
 }
 
 fun calculaNaviosFaltaAfundar(tabuleiroPalpites: Array<Array<Char?>>): Array<Int> {
@@ -757,7 +811,8 @@ fun main() {
 //    val naviosTipo= arrayOf(1,2,3,4)
 //    preencheTabuleiroComputador(tabuleiroComputador,naviosTipo)
 
-  //  obtemMapa(tabuleiroHumano,true)
-   // menuPrincipal();
+    //  obtemMapa(tabuleiroHumano,true)
+
+    menuPrincipal();
 
 }
