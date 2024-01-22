@@ -13,6 +13,8 @@ var tabuleiroPalpitesDoComputador: Array<Array<Char?>> = emptyArray()
 fun menuPrincipal(): Int {
 
     var opcao: Int
+    var jafoi = false
+
     do {
 
         println("\n> > Batalha Naval < <\n")
@@ -22,44 +24,47 @@ fun menuPrincipal(): Int {
         println("4 - Ler")
         println("0 - Sair\n")
 
+        do {
+            opcao = readlnOrNull()?.toIntOrNull() ?: -1
+            var nomeFicheiro = "jogo.txt"
+            when (opcao) {
+                1 -> {
+                    opcao = menuDefinirTabuleiro()
+                    jafoi = true
+                }
 
-        opcao = readlnOrNull()?.toIntOrNull() ?: -1
+                2 -> {
+                    if (jafoi) {
+                        obtemMapa(tabuleiroPalpitesDoHumano, false)
+                    } else {
+                        println("!!! 1Tem que primeiro definir o tabuleiro do jogo, tente novamente")
+                        opcao = -1
+                    }
+                }
 
-        var nomeFicheiro = "jogo.txt"
+                3 -> {
+                    println("Introduza o nome do fichiro(ex: jogo.txt)")
+                    nomeFicheiro = readlnOrNull() ?: "jogo.txt"
+                    gravarJogo(
+                        nomeFicheiro, tabuleiroHumano, tabuleiroPalpitesDoHumano,
+                        tabuleiroComputador, tabuleiroPalpitesDoComputador
+                    )
+                }
 
-        when (opcao) {
+                4 -> {
+                    lerJogo(nomeFicheiro, 4)
+                }
 
-            1 -> {
-                opcao = menuDefinirTabuleiro()
+                0 -> return 0
+
+                else -> {
+                    println("!!! Opcao invalida, tente novamente")
+                    opcao = -2
+                }
             }
+        } while (opcao == -2)
 
-            2 -> {
-
-                obtemMapa(tabuleiroPalpitesDoHumano, false)
-            }
-
-            3 -> {
-                println("Introduza o nome do fichiro(ex: jogo.txt)")
-                nomeFicheiro = readlnOrNull() ?: "jogo.txt"
-                gravarJogo(
-                    nomeFicheiro, tabuleiroHumano, tabuleiroPalpitesDoHumano,
-                    tabuleiroComputador, tabuleiroPalpitesDoComputador
-                )
-            }
-
-            4 -> {
-                lerJogo(nomeFicheiro, 4)
-            }
-
-            0 -> return 0
-
-            else -> {
-                println("!!! Opcao invalida, tente novamente")
-                opcao = -1
-            }
-        }
-
-    } while (opcao > 1 || opcao < 0)
+    } while (opcao == -1)
 
     return 1
 }
@@ -116,7 +121,7 @@ fun criaTerreno(nLinhas: Int, nColunas: Int) {
         terrenoRealString += "$linha\n"
         linha++
     }
-    println(terrenoRealString)
+    print(terrenoRealString)
 
 
     if (menuDefinirNavios() == -1) {
@@ -369,25 +374,25 @@ fun gerarCoordenadasFronteira(
         val (x, y) = coord
 
         if (coordenadaContida(tabuleiro, x - 1, y)) {
-            coordenadasAoRedor[count]=Pair(x - 1, y)
+            coordenadasAoRedor[count] = Pair(x - 1, y)
             count++
         }
         if (coordenadaContida(tabuleiro, x + 1, y)) {
-            coordenadasAoRedor[count]=Pair(x + 1, y)
+            coordenadasAoRedor[count] = Pair(x + 1, y)
             count++
         }
-        if (coordenadaContida(tabuleiro, x , y-1)) {
-            coordenadasAoRedor[count]=Pair(x + 1, y-1)
+        if (coordenadaContida(tabuleiro, x, y - 1)) {
+            coordenadasAoRedor[count] = Pair(x + 1, y - 1)
             count++
         }
-        if (coordenadaContida(tabuleiro, x, y+1)) {
-            coordenadasAoRedor[count]=Pair(x, y+1)
+        if (coordenadaContida(tabuleiro, x, y + 1)) {
+            coordenadasAoRedor[count] = Pair(x, y + 1)
             count++
         }
     }
 
 // Remove coordenadas duplicadas e coordenadas fora dos limites do tabuleiro
-return limparCoordenadasVazias(coordenadasAoRedor).distinct().toTypedArray()
+    return limparCoordenadasVazias(coordenadasAoRedor).distinct().toTypedArray()
 }
 
 fun estaLivre(tabuleiro: Array<Array<Char?>>, coordenadas: Array<Pair<Int, Int>>): Boolean {
