@@ -37,7 +37,7 @@ fun menuPrincipal(): Int {
                     if (jafoi) {
                         obtemMapa(tabuleiroPalpitesDoHumano, false)
                     } else {
-                        println("!!! 1Tem que primeiro definir o tabuleiro do jogo, tente novamente")
+                        println("!!! Tem que primeiro definir o tabuleiro do jogo, tente novamente")
                         opcao = -1
                     }
                 }
@@ -184,14 +184,20 @@ fun menuDefinirNavios(): Int {
                 } else if (orientacao !in "NSEO") {
                     println("!!! Orientacao invalida, tente novamente")
                 }
-                //mostrar o tabuleiro
+             val mapa= obtemMapa(tabuleiroHumano,true)
+                for(linha in mapa){
+                    println(linha)
+                }
+
             } while (orientacao == null || orientacao !in "NSEO" || orientacao == "-1")
         } else {
-            //mostrar o tabuleiro
+            val mapa= obtemMapa(tabuleiroHumano,true)
+            for(linha in mapa){
+                println(linha)
+            }
             barcos[0]--
         }
     }
-
     return 0
 }
 
@@ -578,6 +584,7 @@ fun calculaNaviosFaltaAfundar(tabuleiroPalpites: Array<Array<Char?>>): Array<Int
         for (coluna in tabuleiroPalpites[0].indices) {
             val palpite = tabuleiroPalpites[linha][coluna]
             if (palpite != null && palpite != 'X') {
+                navioCompleto(tabuleiroPalpites, linha, coluna)
                 when (palpite) {
                     'P' -> naviosFaltaAfundar[0]++
                     'T' -> naviosFaltaAfundar[1]++
