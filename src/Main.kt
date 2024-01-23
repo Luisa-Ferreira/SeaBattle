@@ -37,7 +37,7 @@ fun menuPrincipal(): Int {
                     if (jafoi) {
                         obtemMapa(tabuleiroPalpitesDoHumano, false)
                     } else {
-                        println("!!! Tem que primeiro definir o tabuleiro do jogo, tente novamente")
+                     //   println("!!! Tem que primeiro definir o tabuleiro do jogo, tente novamente")
                         opcao = -1
                     }
                 }
@@ -91,7 +91,7 @@ fun menuDefinirTabuleiro(): Int {
 
     return if (tamanhoTabuleiroValido(numLinhas, numColunas)) {
         criaTerreno(numLinhas, numColunas)
-        0
+        -1
     } else {
         println("!!! Tamanho invalido, tente novamente");
         -1
@@ -125,7 +125,7 @@ fun criaTerreno(nLinhas: Int, nColunas: Int) {
 
 
     if (menuDefinirNavios() == -1) {
-        menuPrincipal()
+        return
     }
 }
 
@@ -184,20 +184,18 @@ fun menuDefinirNavios(): Int {
                 } else if (orientacao !in "NSEO") {
                     println("!!! Orientacao invalida, tente novamente")
                 }
-                val mapa = obtemMapa(tabuleiroHumano, true)
-                for (linha in mapa) {
-                    println(linha)
-                }
+//                val mapa = obtemMapa(tabuleiroHumano, true)
+//                for (linha in mapa) {
+//                    println(linha)
+//                }
 
             } while (orientacao == null || orientacao !in "NSEO" || orientacao == "-1")
         } else {
-            val mapa = obtemMapa(tabuleiroHumano, true)
-            for (linha in mapa) {
-                println(linha)
-            }
+
             barcos[0]--
         }
     }
+
     return 0
 }
 
@@ -440,8 +438,8 @@ fun insereNavioSimples(tabuleiro: Array<Array<Char?>>, linha: Int, coluna: Int, 
     for ((i, j) in coordenadasNavio) {
         if (estaLivre(tabuleiro, coordenadasNavio)) {
             tabuleiro[i - 1][j - 1] = ('0' + dimensao).toChar()
+            return true
         }
-        return true
     }
 
     return false
@@ -486,27 +484,28 @@ fun preencheTabuleiroComputador(
     - Nem em cima da água (posições à volta) dos outros navios
     */
 
-    val tiposNavios = arrayOf("S", "C", "T", "P")  // Submarino, Contra-Torpedeiro, Navio Tanque, Porta-Aviões
+    for (i in naviosTipo.indices) {
 
-    for (tipoNavio in tiposNavios) {
-        val dimensao = when (tipoNavio) {
-            "S" -> 1
-            "C" -> 2
-            "T" -> 3
-            "P" -> 4
-            else -> 1  // Padrão para outros tipos
-        }
+        val dimensao = i + 1;
+        var quantidadeBarco = naviosTipo[i]
 
-        // Tenta inserir o navio de forma aleatória até conseguir
-        var inseridoComSucesso = false
-        while (!inseridoComSucesso) {
-            val orientacoes = arrayOf("N", "S", "E", "O")
-            val orientacao = orientacoes.random()
+        if (naviosTipo == calculaNumNavios(numLinhas, numColunas)) {
 
-            val numLinhas = tabuleiroComputador.size
-            val numColunas = tabuleiroComputador[0].size
+            while (quantidadeBarco != 0) {
 
-            inseridoComSucesso = insereNavio(tabuleiroComputador, numLinhas, numColunas, orientacao, dimensao)
+                var inseridoComSucesso = false
+                while (!inseridoComSucesso) {
+                    val orientacoes = arrayOf("N", "S", "E", "O")
+                    val orientacao = orientacoes.random()
+
+                    val numLinhas = tabuleiroComputador.size
+                    val numColunas = tabuleiroComputador[0].size
+
+                    inseridoComSucesso = insereNavio(tabuleiroComputador, numLinhas, numColunas, orientacao, dimensao)
+                }
+
+                quantidadeBarco--
+            }
         }
     }
 }
@@ -524,8 +523,8 @@ fun navioCompleto(tabuleiroPalpitesHumano: Array<Array<Char?>>, linha: Int, colu
     val tipoNavio = tabuleiroPalpitesHumano[linha][coluna]
 
     return when (tipoNavio) {
-        'S' -> true  // Submarino, tamanho 1
-        'C' -> {
+        '1' -> true  // Submarino, tamanho 1
+        '2' -> {
             // Contra-torpedeiro, pode ser de tamanho 1 ou 2
             val tamanho = when {
                 linha + 1 < numRows && tabuleiroPalpitesHumano[linha + 1][coluna] == 'C' -> 2
@@ -557,38 +556,50 @@ fun obtemMapa(tabuleiro: Array<Array<Char?>>, isTabuleiroReal: Boolean): Array<S
 
         deve de retornar um arrayString com o tabuleiro pedido. chamar as funçoes criaLegendaHorizontal e cria terreno para o real
      */
+//tem de ser +1 por causa da legenda horizontal
+    var mapa = Array(numLinhas + 1) { "" }
 
-    var mapa = Array(numLinhas) { "" }
-
-    mapa[0] = "| ${criaLegendaHorizontal(numColunas)} |"
+    mapa[0] += "| ${criaLegendaHorizontal(numColunas)} |"
 
     for (i in tabuleiro.indices) {
 
         for (j in tabuleiro[i].indices) {
-            val valor = if (isTabuleiroReal) {
+            val indSemLegenda = i + 1
+            if (j == 0) {
+                mapa[indSemLegenda] += "|"
+            }
+            if (isTabuleiroReal) {
+
                 // Lógica para determinar o valor no tabuleiro real (ex: Submarino, Contra-torpedeiro, etc.)
-                tabuleiro[i][j]?.toString() ?: "~"  // Usa "~" para representar casas vazias
+                if (tabuleiro[i][j] != null) {
+                    mapa[indSemLegenda] += " ${tabuleiro[i - 1][j]} |"
+                } else {
+                    mapa[indSemLegenda] += " ~ |"
+                }
+
             } else {
                 // Lógica para determinar o valor no tabuleiro de palpites (ex: Água, Tiro, etc.)
                 val navioQuaseAfundado = navioCompleto(tabuleiro, i, j)
 
-                when (tabuleiro[i][j]) {
-                    null -> "?"
-                    'S' -> if (navioQuaseAfundado) "\u2081" else "?"
-                    'C' -> if (navioQuaseAfundado) "\u2082" else "?"
-                    'T' -> if (navioQuaseAfundado) "\u2083" else "?"
-                    'P' -> if (navioQuaseAfundado) "\u2084" else "?"
-                    else -> "?"
+              mapa[indSemLegenda]+=  when (tabuleiro[i][j]) {
+                    'X' -> " X |"
+                    '1' -> if (navioQuaseAfundado) "\u2081" else " 1 |"
+                    '2' -> if (navioQuaseAfundado) "\u2082" else " 2 |"
+                    '3' -> if (navioQuaseAfundado) "\u2083" else " 3 |"
+                    '4' -> if (navioQuaseAfundado) "\u2084" else " 4 |"
+                    else -> " ? |"
                 }
             }
-            mapa += "| $valor "
+
+            if (j == tabuleiro[i].size - 1) {
+                mapa[indSemLegenda] += " ${indSemLegenda}"
+            }
         }
-        mapa += "| ${i + 1}"
 
     }
-
     return mapa
 }
+
 
 fun calculaNaviosFaltaAfundar(tabuleiroPalpites: Array<Array<Char?>>): Array<Int> {
     val naviosFaltaAfundar = Array(4) { 0 }
@@ -630,26 +641,31 @@ fun lancarTiro(
     return when (alvo) {
         null -> {
             tabuleiroPalpitesHumano[linha][coluna] = alvo
+            tabuleiroComputador[linha][coluna] = 'X'
             "Agua." // Água
         }
 
         '1' -> {
             tabuleiroPalpitesHumano[linha][coluna] = alvo
+            tabuleiroComputador[linha][coluna] = 'X'
             "Tiro num submarino." // Tiro num submarino
         }
 
         '2' -> {
             tabuleiroPalpitesHumano[linha][coluna] = alvo
+            tabuleiroComputador[linha][coluna] = 'X'
             "Tiro num contra-torpedeiro." // Tiro num contra-torpedeiro
         }
 
         '3' -> {
             tabuleiroPalpitesHumano[linha][coluna] = alvo
+            tabuleiroComputador[linha][coluna] = 'X'
             "Tiro num navio-tanque." // Tiro num navio-tanque
         }
 
         '4' -> {
             tabuleiroPalpitesHumano[linha][coluna] = alvo
+            tabuleiroComputador[linha][coluna] = 'X'
             "Tiro num porta-avioes." // Tiro num porta-aviões
         }
 
@@ -709,7 +725,7 @@ fun venceu(tabuleiroPalpites: Array<Array<Char?>>): Boolean {
     var count = 0
 
     while (count < 4) {
-        if (contarNaviosDeDimensao(tabuleiroPalpites, count+1) != naviosDimensao[count]) {
+        if (contarNaviosDeDimensao(tabuleiroPalpites, count + 1) != naviosDimensao[count]) {
             return false
         }
         count++
@@ -840,8 +856,16 @@ fun main() {
 //    preencheTabuleiroComputador(tabuleiroComputador,naviosTipo)
 
     //  obtemMapa(tabuleiroHumano,true)
-    tabuleiroHumano = criaTabuleiroVazio(4, 4)
-    insereNavioSimples(tabuleiroHumano, 1, 1, 1)
+//    tabuleiroHumano = criaTabuleiroVazio(4, 4)
+//
+//    numLinhas=4
+//    numColunas=4
+//
+//    for (elemento in obtemMapa(tabuleiroHumano, false)) {
+//        println(elemento)
+//    }
+//    preencheTabuleiroComputador(tabuleiroHumano, arrayOf(2, 0, 1, 3))
+//    insereNavioSimples(tabuleiroHumano, 1, 1, 1)
     menuPrincipal();
 
 }
