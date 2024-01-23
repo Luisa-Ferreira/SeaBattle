@@ -184,15 +184,15 @@ fun menuDefinirNavios(): Int {
                 } else if (orientacao !in "NSEO") {
                     println("!!! Orientacao invalida, tente novamente")
                 }
-             val mapa= obtemMapa(tabuleiroHumano,true)
-                for(linha in mapa){
+                val mapa = obtemMapa(tabuleiroHumano, true)
+                for (linha in mapa) {
                     println(linha)
                 }
 
             } while (orientacao == null || orientacao !in "NSEO" || orientacao == "-1")
         } else {
-            val mapa= obtemMapa(tabuleiroHumano,true)
-            for(linha in mapa){
+            val mapa = obtemMapa(tabuleiroHumano, true)
+            for (linha in mapa) {
                 println(linha)
             }
             barcos[0]--
@@ -373,26 +373,29 @@ fun gerarCoordenadasFronteira(
 
     val coordNavio = gerarCoordenadasNavio(tabuleiro, linha, coluna, orientacao, dimensao)
 
-    val coordenadasAoRedor: Array<Pair<Int, Int>> = emptyArray()
+    val coordenadasAoRedor: Array<Pair<Int, Int>> = Array(dimensao * 4) { Pair(0, 0) }
 
+    if (coordNavio.isEmpty()) {
+        return coordenadasAoRedor
+    }
 
     var count = 0
     for (coord in coordNavio) {
         val (x, y) = coord
 
-        if (coordenadaContida(tabuleiro, x - 1, y)) {
+        if (coordenadaContida(tabuleiro, x - 1, y) && estaLivre(tabuleiro, arrayOf(Pair(x - 1, y)))) {
             coordenadasAoRedor[count] = Pair(x - 1, y)
             count++
         }
-        if (coordenadaContida(tabuleiro, x + 1, y)) {
+        if (coordenadaContida(tabuleiro, x + 1, y) && estaLivre(tabuleiro, arrayOf(Pair(x + 1, y)))) {
             coordenadasAoRedor[count] = Pair(x + 1, y)
             count++
         }
-        if (coordenadaContida(tabuleiro, x, y - 1)) {
+        if (coordenadaContida(tabuleiro, x, y - 1) && estaLivre(tabuleiro, arrayOf(Pair(x, y - 1)))) {
             coordenadasAoRedor[count] = Pair(x + 1, y - 1)
             count++
         }
-        if (coordenadaContida(tabuleiro, x, y + 1)) {
+        if (coordenadaContida(tabuleiro, x, y + 1) && estaLivre(tabuleiro, arrayOf(Pair(x, y + 1)))) {
             coordenadasAoRedor[count] = Pair(x, y + 1)
             count++
         }
@@ -420,14 +423,23 @@ fun estaLivre(tabuleiro: Array<Array<Char?>>, coordenadas: Array<Pair<Int, Int>>
 fun insereNavioSimples(tabuleiro: Array<Array<Char?>>, linha: Int, coluna: Int, dimensao: Int): Boolean {
     val orientacao = "E"  // Sempre na orientação leste
 
+    //agua à volta disponivel gerarCoordenadasFronteira() e se esta disponivel o local
+    // gerarCoordenadasNavio para tirar todas as coordenadas
     // Gera as coordenadas do navio
     val coordenadasNavio = gerarCoordenadasNavio(tabuleiro, linha, coluna, orientacao, dimensao)
 
     // Verifica se as coordenadas do navio estão livres
-    if (estaLivre(tabuleiro, coordenadasNavio)) {
-        // Insere o navio no tabuleiro
-        for ((i, j) in coordenadasNavio) {
-            tabuleiro[i - 1][j - 1] = 'N'  // 'N' representa um navio simples
+
+    if (coordenadasNavio.isEmpty() ||
+        gerarCoordenadasFronteira(tabuleiro, linha, coluna, orientacao, dimensao).isEmpty()
+    ) {
+        return false
+    }
+
+    // Insere o navio no tabuleiro
+    for ((i, j) in coordenadasNavio) {
+        if (estaLivre(tabuleiro, coordenadasNavio)) {
+            tabuleiro[i - 1][j - 1] = ('0' + dimensao).toChar()
         }
         return true
     }
@@ -617,27 +629,27 @@ fun lancarTiro(
 
     return when (alvo) {
         null -> {
-            tabuleiroPalpitesHumano[linha][coluna] = 'X'
+            tabuleiroPalpitesHumano[linha][coluna] = alvo
             "Agua." // Água
         }
 
-        'S' -> {
-            tabuleiroPalpitesHumano[linha][coluna] = 'S'
+        '1' -> {
+            tabuleiroPalpitesHumano[linha][coluna] = alvo
             "Tiro num submarino." // Tiro num submarino
         }
 
-        'C' -> {
-            tabuleiroPalpitesHumano[linha][coluna] = 'C'
+        '2' -> {
+            tabuleiroPalpitesHumano[linha][coluna] = alvo
             "Tiro num contra-torpedeiro." // Tiro num contra-torpedeiro
         }
 
-        'T' -> {
-            tabuleiroPalpitesHumano[linha][coluna] = 'T'
+        '3' -> {
+            tabuleiroPalpitesHumano[linha][coluna] = alvo
             "Tiro num navio-tanque." // Tiro num navio-tanque
         }
 
-        'P' -> {
-            tabuleiroPalpitesHumano[linha][coluna] = 'P'
+        '4' -> {
+            tabuleiroPalpitesHumano[linha][coluna] = alvo
             "Tiro num porta-avioes." // Tiro num porta-aviões
         }
 
@@ -694,10 +706,13 @@ fun venceu(tabuleiroPalpites: Array<Array<Char?>>): Boolean {
 
     val naviosDimensao = calculaNumNavios(numLinhas, numColunas)
 
-    for (count in 1..4) {
-        if (contarNaviosDeDimensao(tabuleiroPalpites, count) != naviosDimensao[count]) {
+    var count = 0
+
+    while (count < 4) {
+        if (contarNaviosDeDimensao(tabuleiroPalpites, count+1) != naviosDimensao[count]) {
             return false
         }
+        count++
     }
 
     return true
@@ -825,7 +840,8 @@ fun main() {
 //    preencheTabuleiroComputador(tabuleiroComputador,naviosTipo)
 
     //  obtemMapa(tabuleiroHumano,true)
-
+    tabuleiroHumano = criaTabuleiroVazio(4, 4)
+    insereNavioSimples(tabuleiroHumano, 1, 1, 1)
     menuPrincipal();
 
 }
