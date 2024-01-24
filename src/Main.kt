@@ -133,7 +133,6 @@ fun jogar(): Int {
 
     print(mapa(tabuleiroPalpitesDoComputador, false))
 
-
     return 0
 }
 
