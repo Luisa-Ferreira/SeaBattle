@@ -132,7 +132,7 @@ fun jogar(): Int {
     }
 
    do{
-        print(mapa(tabuleiroPalpitesDoComputador, false))
+        print(mapa(tabuleiroPalpitesDoHumano, false))
 
         println("Indique a posição que pretende atingir")
 
@@ -158,7 +158,7 @@ fun jogar(): Int {
 
         } while (coordenadas == null || coords == null)
 
-        lancarTiro(tabuleiroPalpitesDoComputador, tabuleiroPalpitesDoHumano, coords)
+       println(lancarTiro(tabuleiroComputador, tabuleiroPalpitesDoHumano, coords))
     } while(venceu(tabuleiroPalpitesDoHumano)|| venceu(tabuleiroPalpitesDoComputador))
 
     return 0
@@ -716,8 +716,8 @@ fun lancarTiro(
     coordenadas: Pair<Int, Int>
 ): String {
 
-    val linha = coordenadas.first - 1
-    val coluna = coordenadas.second - 1
+    val linha = coordenadas.first-1
+    val coluna = coordenadas.second-1
 
     if (linha < 0 || coluna < 0 || linha >= tabuleiroComputador.size || coluna >= tabuleiroComputador[0].size) {
         // Se as coordenadas do tiro estiverem fora do tabuleiro, retorna string vazia (inválido)
@@ -728,32 +728,31 @@ fun lancarTiro(
 
     return when (alvo) {
         null -> {
-            tabuleiroPalpitesHumano[linha][coluna] = alvo
-            tabuleiroComputador[linha][coluna] = 'X'
+
+            tabuleiroPalpitesHumano[linha][coluna] = 'X'
             "Agua." // Água
         }
 
         '1' -> {
-            tabuleiroPalpitesHumano[linha][coluna] = alvo
-            tabuleiroComputador[linha][coluna] = 'X'
+            tabuleiroPalpitesHumano[linha][coluna] = '1'
             "Tiro num submarino." // Tiro num submarino
         }
 
         '2' -> {
             tabuleiroPalpitesHumano[linha][coluna] = alvo
-            tabuleiroComputador[linha][coluna] = 'X'
+            tabuleiroComputador[linha][coluna] = '2'
             "Tiro num contra-torpedeiro." // Tiro num contra-torpedeiro
         }
 
         '3' -> {
             tabuleiroPalpitesHumano[linha][coluna] = alvo
-            tabuleiroComputador[linha][coluna] = 'X'
+            tabuleiroComputador[linha][coluna] = '3'
             "Tiro num navio-tanque." // Tiro num navio-tanque
         }
 
         '4' -> {
             tabuleiroPalpitesHumano[linha][coluna] = alvo
-            tabuleiroComputador[linha][coluna] = 'X'
+            tabuleiroComputador[linha][coluna] = '4'
             "Tiro num porta-avioes." // Tiro num porta-aviões
         }
 
