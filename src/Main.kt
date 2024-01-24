@@ -37,7 +37,7 @@ fun menuPrincipal(): Int {
                     if (jafoi) {
                         obtemMapa(tabuleiroPalpitesDoHumano, false)
                     } else {
-                          println("!!! Tem que primeiro definir o tabuleiro do jogo, tente novamente")
+                        println("!!! Tem que primeiro definir o tabuleiro do jogo, tente novamente")
                         opcao = -1
                     }
                 }
@@ -332,9 +332,13 @@ fun gerarCoordenadasNavio(
     dimensao: Int
 ): Array<Pair<Int, Int>> {
 
-    val coordenadasNavio: Array<Pair<Int, Int>> = arrayOf(Pair(linha, coluna))
+    var coordenadasNavio: Array<Pair<Int, Int>> = emptyArray()
 
     if (dimensao == 1) {
+        if (!coordenadaContida(tabuleiro, linha, coluna)) {
+            return emptyArray()
+        }
+        coordenadasNavio = Array(1) { Pair(linha, coluna) }
 
         return coordenadasNavio
     }
@@ -347,12 +351,12 @@ fun gerarCoordenadasNavio(
 
         when (orientacao) {
 
-            "N" -> {
+            "S" -> {
                 novaLinha = linha + i
                 novaColuna = coluna
             }
 
-            "S" -> {
+            "N" -> {
                 novaLinha = linha + i
                 novaColuna = coluna
             }
@@ -412,13 +416,31 @@ fun gerarCoordenadasFronteira(
             count++
         }
         if (coordenadaContida(tabuleiro, x, y - 1) && estaLivre(tabuleiro, arrayOf(Pair(x, y - 1)))) {
-            coordenadasAoRedor[count] = Pair(x + 1, y - 1)
+            coordenadasAoRedor[count] = Pair(x, y - 1)
             count++
         }
         if (coordenadaContida(tabuleiro, x, y + 1) && estaLivre(tabuleiro, arrayOf(Pair(x, y + 1)))) {
             coordenadasAoRedor[count] = Pair(x, y + 1)
             count++
         }
+        if (coordenadaContida(tabuleiro, x + 1, y + 1) && estaLivre(tabuleiro, arrayOf(Pair(x, y + 1)))) {
+            coordenadasAoRedor[count] = Pair(x + 1, y + 1)
+            count++
+        }
+        if (coordenadaContida(tabuleiro, x - 1, y + 1) && estaLivre(tabuleiro, arrayOf(Pair(x, y + 1)))) {
+            coordenadasAoRedor[count] = Pair(x - 1, y + 1)
+            count++
+        }
+        if (coordenadaContida(tabuleiro, x + 1, y - 1) && estaLivre(tabuleiro, arrayOf(Pair(x, y + 1)))) {
+            coordenadasAoRedor[count] = Pair(x + 1, y - 1)
+            count++
+        }
+
+        if (coordenadaContida(tabuleiro, x - 1, y - 1) && estaLivre(tabuleiro, arrayOf(Pair(x, y + 1)))) {
+            coordenadasAoRedor[count] = Pair(x - 1, y - 1)
+            count++
+        }
+
     }
 
 // Remove coordenadas duplicadas e coordenadas fora dos limites do tabuleiro
@@ -449,19 +471,16 @@ fun insereNavioSimples(tabuleiro: Array<Array<Char?>>, linha: Int, coluna: Int, 
     val coordenadasNavio = gerarCoordenadasNavio(tabuleiro, linha, coluna, orientacao, dimensao)
 
     // Verifica se as coordenadas do navio estão livres
+    val coordAVolta = gerarCoordenadasFronteira(tabuleiro, linha, coluna, orientacao, dimensao)
 
-    if (coordenadasNavio.isEmpty() ||
-        gerarCoordenadasFronteira(tabuleiro, linha, coluna, orientacao, dimensao).isEmpty()
+    if (coordenadasNavio.size != dimensao ||
+        coordAVolta.isEmpty()
     ) {
         return false
     }
 
-    // Insere o navio no tabuleiro
-    for ((i, j) in coordenadasNavio) {
-        if (estaLivre(tabuleiro, coordenadasNavio)) {
-            tabuleiro[i - 1][j - 1] = ('0' + dimensao).toChar()
-            return true
-        }
+    if (!estaLivre(tabuleiro, coordenadasNavio) || !estaLivre(tabuleiro, coordAVolta)) {
+        return false
     }
 
     return false
