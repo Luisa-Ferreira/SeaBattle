@@ -131,31 +131,35 @@ fun jogar(): Int {
         return -1
     }
 
-    print(mapa(tabuleiroPalpitesDoComputador, false))
+   do{
+        print(mapa(tabuleiroPalpitesDoComputador, false))
 
-    println("Indique a posição que pretende atingir")
-
-    var coordenadas: String?
-
-    do {
-        println("Coordenadas? (ex: 6,G)")
-        coordenadas = readlnOrNull()
+        println("Indique a posição que pretende atingir")
 
 
-        if (coordenadas == null) {
-            println("!!! Coordenadas invalidas, tente novamente")
-            return -1
-        } else if (coordenadas.trim() == "-1") {
-            return -1
-        } else if (processaCoordenadas(coordenadas, numLinhas, numColunas) == null) {
-            println("!!! Coordenadas invalidas, tente novamente")
-        }
+        var coordenadas: String?
+        var coords: Pair<Int, Int>? = null
 
-        val coords = processaCoordenadas(coordenadas, numLinhas, numColunas)
-
-    } while (coordenadas == null || coords == null)
+        do {
+            println("Coordenadas? (ex: 6,G)")
+            coordenadas = readlnOrNull()
 
 
+            if (coordenadas == null) {
+                println("!!! Coordenadas invalidas, tente novamente")
+                return -1
+            } else if (coordenadas.trim() == "-1") {
+                return -1
+            } else if (processaCoordenadas(coordenadas, numLinhas, numColunas) == null) {
+                println("!!! Coordenadas invalidas, tente novamente")
+            }
+
+            coords = processaCoordenadas(coordenadas, numLinhas, numColunas)
+
+        } while (coordenadas == null || coords == null)
+
+        lancarTiro(tabuleiroPalpitesDoComputador, tabuleiroPalpitesDoHumano, coords)
+    } while(venceu(tabuleiroPalpitesDoHumano)|| venceu(tabuleiroPalpitesDoComputador))
 
     return 0
 }
@@ -237,7 +241,6 @@ fun menuDefinirNavios(): Int {
                 }
             }
         }
-
     }
 
     preencheTabuleiroComputador(tabuleiroComputador, calculaNumNavios(numLinhas, numColunas))
@@ -575,23 +578,30 @@ fun preencheTabuleiroComputador(
         val dimensao = i + 1;
         var quantidadeBarco = naviosTipo[i]
 
-        if (naviosTipo == calculaNumNavios(numLinhas, numColunas)) {
 
-            while (quantidadeBarco != 0) {
+        while (quantidadeBarco != 0) {
 
-                var inseridoComSucesso = false
-                while (!inseridoComSucesso) {
+            var inseridoComSucesso = false
+            while (!inseridoComSucesso) {
+
+
+                val randomLinhas = (1..numLinhas).random()
+                val randomColumn = (1..numColunas).random()
+
+
+                if (dimensao == 1) {
+                    inseridoComSucesso = insereNavioSimples(tabuleiroComputador, randomLinhas, randomColumn, dimensao)
+                } else {
+
                     val orientacoes = arrayOf("N", "S", "E", "O")
-                    val orientacao = orientacoes.random()
+                    val randomOrientacao = orientacoes.random()
 
-                    val numLinhas = tabuleiroComputador.size
-                    val numColunas = tabuleiroComputador[0].size
-
-                    inseridoComSucesso = insereNavio(tabuleiroComputador, numLinhas, numColunas, orientacao, dimensao)
+                    inseridoComSucesso =
+                        insereNavio(tabuleiroComputador, randomLinhas, randomColumn, randomOrientacao, dimensao)
                 }
 
-                quantidadeBarco--
             }
+            quantidadeBarco--
         }
     }
 }
@@ -603,10 +613,14 @@ fun navioCompleto(tabuleiroPalpitesHumano: Array<Array<Char?>>, linha: Int, colu
     // Verifica se a posição está dentro dos limites do tabuleiro
     if (!coordenadaContida(tabuleiroPalpitesHumano, linha, coluna)) {
         return false
+
     }
 
+if(tabuleiroPalpitesHumano[linha-1][coluna-1]==null){
+    return false
+}
     // Obtém o tipo do navio na posição especificada
-    val tipoNavio = tabuleiroPalpitesHumano[linha][coluna]
+    val tipoNavio = tabuleiroPalpitesHumano[linha-1][coluna-1]
 
     return when (tipoNavio) {
         '1' -> true  // Submarino, tamanho 1
@@ -777,8 +791,8 @@ fun contarNaviosDeDimensao(tabuleiroPalpites: Array<Array<Char?>>, dimensao: Int
 
     var contador = 0
 
-    for (numLinhas in tabuleiroPalpites.indices-1) {
-        for (numColunas in tabuleiroPalpites[0].indices-1) {
+    for (numLinhas in tabuleiroPalpites.indices - 1) {
+        for (numColunas in tabuleiroPalpites[0].indices - 1) {
             if (navioCompleto(tabuleiroPalpites, numLinhas + 1, numColunas + 1)) {
                 contador++
             }
@@ -800,12 +814,12 @@ fun venceu(tabuleiroPalpites: Array<Array<Char?>>): Boolean {
 
     while (count < 4) {
         if (contarNaviosDeDimensao(tabuleiroPalpites, count + 1) != naviosDimensao[count]) {
-            return false
+            return true
         }
         count++
     }
 
-    return true
+    return false
 }
 
 fun calculaEstatisticas(tabuleiroPalpites: Array<Array<Char?>>): Array<Int> {
