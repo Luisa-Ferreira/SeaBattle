@@ -133,6 +133,30 @@ fun jogar(): Int {
 
     print(mapa(tabuleiroPalpitesDoComputador, false))
 
+    println("Indique a posição que pretende atingir")
+
+    var coordenadas: String?
+
+    do {
+        println("Coordenadas? (ex: 6,G)")
+        coordenadas = readlnOrNull()
+
+
+        if (coordenadas == null) {
+            println("!!! Coordenadas invalidas, tente novamente")
+            return -1
+        } else if (coordenadas.trim() == "-1") {
+            return -1
+        } else if (processaCoordenadas(coordenadas, numLinhas, numColunas) == null) {
+            println("!!! Coordenadas invalidas, tente novamente")
+        }
+
+        val coords = processaCoordenadas(coordenadas, numLinhas, numColunas)
+
+    } while (coordenadas == null || coords == null)
+
+
+
     return 0
 }
 
@@ -753,8 +777,8 @@ fun contarNaviosDeDimensao(tabuleiroPalpites: Array<Array<Char?>>, dimensao: Int
 
     var contador = 0
 
-    for (numLinhas in tabuleiroPalpites.indices) {
-        for (numColunas in tabuleiroPalpites[0].indices) {
+    for (numLinhas in tabuleiroPalpites.indices-1) {
+        for (numColunas in tabuleiroPalpites[0].indices-1) {
             if (navioCompleto(tabuleiroPalpites, numLinhas + 1, numColunas + 1)) {
                 contador++
             }
