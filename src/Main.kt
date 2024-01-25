@@ -130,10 +130,9 @@ fun jogar(): Int {
         println("!!! Tem que primeiro definir o tabuleiro do jogo, tente novamente")
         return -1
     }
-    var venceuHumano:Boolean
-    var venceuComputador:Boolean
+    var venceuHumano: Boolean
 
-        do {
+    do {
         print(mapa(tabuleiroPalpitesDoHumano, false))
 
         println("Indique a posição que pretende atingir")
@@ -166,15 +165,20 @@ fun jogar(): Int {
 
         } while (coordenadas == null || coords == null)
 
-        println(lancarTiro(tabuleiroComputador, tabuleiroPalpitesDoHumano, coords))
+        println(">>> HUMANO >>>" + lancarTiro(tabuleiroComputador, tabuleiroPalpitesDoHumano, coords))
 
-       venceuHumano= venceu(tabuleiroPalpitesDoHumano)
 
-    } while ( !venceuHumano && !venceu(tabuleiroPalpitesDoComputador))
+        println("Computador lancou tiro para a posicao" + geraTiroComputador(tabuleiroPalpitesDoComputador))
 
-    if(venceuHumano){
+        println(">>> HUMANO >>>" + lancarTiro(tabuleiroComputador, tabuleiroPalpitesDoHumano, coords))
+
+        venceuHumano = venceu(tabuleiroPalpitesDoHumano)
+
+    } while (!venceuHumano && !venceu(tabuleiroPalpitesDoComputador))
+
+    if (venceuHumano) {
         println("Parabens")
-    }else{
+    } else {
         println("Venceu Computador")
     }
 
@@ -975,5 +979,4 @@ fun main() {
 //    preencheTabuleiroComputador(tabuleiroHumano, arrayOf(2, 0, 1, 3))
 //    insereNavioSimples(tabuleiroHumano, 1, 1, 1)
     menuPrincipal();
-
 }
