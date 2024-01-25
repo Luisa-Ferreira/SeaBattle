@@ -130,8 +130,10 @@ fun jogar(): Int {
         println("!!! Tem que primeiro definir o tabuleiro do jogo, tente novamente")
         return -1
     }
+    var venceuHumano:Boolean
+    var venceuComputador:Boolean
 
-   do{
+        do {
         print(mapa(tabuleiroPalpitesDoHumano, false))
 
         println("Indique a posição que pretende atingir")
@@ -156,10 +158,25 @@ fun jogar(): Int {
 
             coords = processaCoordenadas(coordenadas, numLinhas, numColunas)
 
+            if (coords != null) {
+                if (tabuleiroPalpitesDoHumano[coords.first - 1][coords.second - 1] != null) {
+                    println("!!! Coordenadas invalidas, tente novamente")
+                }
+            }
+
         } while (coordenadas == null || coords == null)
 
-       println(lancarTiro(tabuleiroComputador, tabuleiroPalpitesDoHumano, coords))
-    } while(venceu(tabuleiroPalpitesDoHumano)|| venceu(tabuleiroPalpitesDoComputador))
+        println(lancarTiro(tabuleiroComputador, tabuleiroPalpitesDoHumano, coords))
+
+       venceuHumano= venceu(tabuleiroPalpitesDoHumano)
+
+    } while ( !venceuHumano && !venceu(tabuleiroPalpitesDoComputador))
+
+    if(venceuHumano){
+        println("Parabens")
+    }else{
+        println("Venceu Computador")
+    }
 
     return 0
 }
@@ -616,11 +633,11 @@ fun navioCompleto(tabuleiroPalpitesHumano: Array<Array<Char?>>, linha: Int, colu
 
     }
 
-if(tabuleiroPalpitesHumano[linha-1][coluna-1]==null){
-    return false
-}
+    if (tabuleiroPalpitesHumano[linha - 1][coluna - 1] == null) {
+        return false
+    }
     // Obtém o tipo do navio na posição especificada
-    val tipoNavio = tabuleiroPalpitesHumano[linha-1][coluna-1]
+    val tipoNavio = tabuleiroPalpitesHumano[linha - 1][coluna - 1]
 
     return when (tipoNavio) {
         '1' -> true  // Submarino, tamanho 1
@@ -716,8 +733,8 @@ fun lancarTiro(
     coordenadas: Pair<Int, Int>
 ): String {
 
-    val linha = coordenadas.first-1
-    val coluna = coordenadas.second-1
+    val linha = coordenadas.first - 1
+    val coluna = coordenadas.second - 1
 
     if (linha < 0 || coluna < 0 || linha >= tabuleiroComputador.size || coluna >= tabuleiroComputador[0].size) {
         // Se as coordenadas do tiro estiverem fora do tabuleiro, retorna string vazia (inválido)
@@ -790,9 +807,14 @@ fun contarNaviosDeDimensao(tabuleiroPalpites: Array<Array<Char?>>, dimensao: Int
 
     var contador = 0
 
-    for (numLinhas in tabuleiroPalpites.indices - 1) {
-        for (numColunas in tabuleiroPalpites[0].indices - 1) {
-            if (navioCompleto(tabuleiroPalpites, numLinhas + 1, numColunas + 1)) {
+    for (numLinhas in 0 until tabuleiroPalpites.size) {
+        for (numColunas in 0 until tabuleiroPalpites[0].size) {
+            if (tabuleiroPalpites[numLinhas][numColunas] == ('0' + dimensao).toChar() && navioCompleto(
+                    tabuleiroPalpites,
+                    numLinhas + 1,
+                    numColunas + 1
+                )
+            ) {
                 contador++
             }
         }
@@ -813,12 +835,12 @@ fun venceu(tabuleiroPalpites: Array<Array<Char?>>): Boolean {
 
     while (count < 4) {
         if (contarNaviosDeDimensao(tabuleiroPalpites, count + 1) != naviosDimensao[count]) {
-            return true
+            return false
         }
         count++
     }
 
-    return false
+    return true
 }
 
 fun calculaEstatisticas(tabuleiroPalpites: Array<Array<Char?>>): Array<Int> {
